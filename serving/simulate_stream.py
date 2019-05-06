@@ -52,7 +52,7 @@ def send_message(publisher, topic, index):
     source_timestamp = datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')
     source_id = str(abs(hash(str(index)+str(instance)+str(source_timestamp)+str(os.getpid()))) % (10 ** 10))
     message = json.dumps(instance)
-    publisher.publish(topic=topic, message=message, source_id=source_id, source_timestamp=source_timestamp)
+    publisher.publish(topic=topic, data=message, source_id=source_id, source_timestamp=source_timestamp)
     return message
 
 
@@ -73,10 +73,10 @@ def simulate_stream_data():
     event_type = publisher.topic_path(PARAMS.project_id, PARAMS.pubsub_topic)
     try:
       publisher.get_topic(event_type)
-      logging.info('Reusing pub/sub topic {}'.format(TOPIC))
+      print('Reusing pub/sub topic {}'.format(PARAMS.pubsub_topic))
     except:
       publisher.create_topic(event_type)
-      logging.info('Creating pub/sub topic {}'.format(TOPIC))
+      print('Creating pub/sub topic {}'.format(PARAMS.pubsub_topic))
 
     for index in range(PARAMS.stream_sample_size):
 
@@ -98,7 +98,7 @@ def simulate_stream_data():
     time_elapsed = time_end - time_start
     time_elapsed_seconds = time_elapsed.total_seconds()
     print("Simulation elapsed time: {} seconds".format(time_elapsed_seconds))
-    print("{} data points were sent to: {}.".format(PARAMS.stream_sample_size, topic.full_name))
+    print("{} data points were sent to: {}.".format(PARAMS.stream_sample_size, event_type))
     print("Average frequency: {} per second".format(round(PARAMS.stream_sample_size/time_elapsed_seconds, 2)))
 
 
