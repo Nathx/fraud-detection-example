@@ -11,23 +11,46 @@ MESSAGE_TIME = 0.011
 PARAMS = None
 
 instance = {
-        'is_male': 'True',
-        'mother_age': 26.0,
-        'mother_race': 'Asian Indian',
-        'plurality': 1.0,
-        'gestation_weeks': 39,
-        'mother_married': 'True',
-        'cigarette_use': 'False',
-        'alcohol_use': 'False'
-      }
+    "V23": -0.471709469790029,
+    "V22": -0.581270019133044,
+    "V21": 3.7536560833085604,
+    "V20": -1.7910765472128303,
+    "V27": 0.699600694529817,
+    "V26": 0.795361353517608,
+    "V25": -0.459130000870193,
+    "V24": 0.0153454352970634,
+    "V28": 0.339586330147973,
+    "V1": 0.10741590340147,
+    "V2": 0.8113232283170401,
+    "V3": -2.7792543222248702,
+    "V4": -1.17726972753825,
+    "V5": -0.46540477371290995,
+    "V6": -0.496894626457315,
+    "V7": 0.380197905618243,
+    "V8": -4.88379215131891,
+    "V9": -1.10742940467555,
+    "Amount": 274.8,
+    "key": 8821738702745408944,
+    "Time": 126481.0,
+    "V18": 0.49129158267520895,
+    "V19": -1.3922975162365498,
+    "V12": 0.279855357730141,
+    "V13": 0.377550214586591,
+    "V10": 0.924402052309218,
+    "V11": -1.16198047670576,
+    "V16": -2.09567581478598,
+    "V17": 0.21285085432553197,
+    "V14": 0.794771759648585,
+    "V15": -1.01132120214707
+}
+
+def generate_instance():
 
 
 def send_message(publisher, topic, index):
 
     source_timestamp = datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')
     source_id = str(abs(hash(str(index)+str(instance)+str(source_timestamp)+str(os.getpid()))) % (10 ** 10))
-    instance['source_id'] = source_id
-    instance['source_timestamp'] = source_timestamp
     message = json.dumps(instance)
     publisher.publish(topic=topic, message=message, source_id=source_id, source_timestamp=source_timestamp)
     return message
