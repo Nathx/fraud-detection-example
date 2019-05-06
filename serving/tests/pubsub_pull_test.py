@@ -1,11 +1,11 @@
 from google.cloud import pubsub
 
+PROJECT_ID='my-project-1470763762469'
+TOPIC = 'new-transactions'
+SUBSCRIPTION='transactions-inference'
 
-TOPIC = 'babyweights'
-SUBSCRIPTION='babyweights-sub'
-
-client = pubsub.Client()
-topic = client.topic(TOPIC)
+client = pubsub.PublisherClient()
+topic = client.get_topic(publisher.topic_path(PROJECT_ID, PARAMS.pubsub_topic))
 
 subscription = topic.subscription(name=SUBSCRIPTION)
 if not subscription.exists():
