@@ -22,14 +22,14 @@ instance = {
       }
 
 
-def send_message(topic, index):
+def send_message(publisher, topic, index):
 
     source_timestamp = datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')
     source_id = str(abs(hash(str(index)+str(instance)+str(source_timestamp)+str(os.getpid()))) % (10 ** 10))
     instance['source_id'] = source_id
     instance['source_timestamp'] = source_timestamp
     message = json.dumps(instance)
-    topic.publish(message=message, source_id=source_id, source_timestamp=source_timestamp)
+    publisher.publish(topic=topic, message=message, source_id=source_id, source_timestamp=source_timestamp)
     return message
 
 
@@ -46,17 +46,18 @@ def simulate_stream_data():
     print(".......................................")
 
     #[START simulate_stream]
-    client = pubsub.Client(project=PARAMS.project_id)
-    topic = client.topic(PARAMS.pubsub_topic)
-    if not topic.exists():
-        print 'Topic does not exist. Please run a stream pipeline first to create the topic.'
-        print 'Simulation aborted.'
-
-        return
+    publisher = pubsub.PublisherClient()
+    event_type = publisher.topic_path(PARAMS.project_id, PARAMS.pubsub_topic)
+    try:
+      publisher.get_topic(event_type)
+      logging.info('Reusing pub/sub topic {}'.format(TOPIC))
+    except:
+      publisher.create_topic(event_type)
+      logging.info('Creating pub/sub topic {}'.format(TOPIC))
 
     for index in range(PARAMS.stream_sample_size):
 
-        message = send_message(topic, index)
+        message = send_message(publisher, event_type, index)
 
         # for debugging
         if PARAMS.show_message:
