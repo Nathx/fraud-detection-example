@@ -11,43 +11,37 @@ from google.cloud import bigquery
 
 
 BQ_SCHEMA_DEF = {
-    'source_id':'INTEGER',
-    'source_timestamp':'TIMESTAMP',
-    'predict_timestamp':'TIMESTAMP',
-    'estimated_weight':'FLOAT',
-    'is_male': 'STRING',
-    'mother_age': 'FLOAT',
-    'mother_race': 'STRING',
-    'plurality': 'FLOAT',
-    'gestation_weeks': 'INTEGER',
-    'mother_married': 'BOOLEAN',
-    'cigarette_use': 'BOOLEAN',
-    'alcohol_use': 'BOOLEAN'
+  "Time": 'INTEGER',
+  "Amount": 'FLOAT',
+  "key": 'INTEGER'
 }
+BQ_SCHEMA_DEF.update(dict(('V{}'.format(i + 1), 'FLOAT') for i in range(28)))
 
 
 def prepare_steaming_source(project_id, pubsub_topic, pubsub_subscription):
 
     # create pubsub topic
 
-    pubsub_client = pubsub.Client(project=project_id)
-    topic = pubsub_client.topic(pubsub_topic)
+    publisher = pubsub.PublisherClient()
+    topic_path = publisher.topic_path(project_id, pubsub_topic)
 
     if topic.exists():
         print('Deleting pub/sub topic {}...'.format(pubsub_topic))
-        topic.delete()
+        publisher.delete_topic(topic_path)
 
     print('Creating pub/sub topic {}...'.format(pubsub_topic))
-    topic.create()
+    topic = publisher.create_topic(topic_path)
     print('Pub/sub topic {} is up and running'.format(pubsub_topic))
 
-    subscription = topic.subscription(pubsub_subscription)
+    subscriber = pubsub.SubscriberClient()
+    subscription_path = subscriber.subscription_path(
+        project_id, pubsub_subscription)
     if subscription.exists():
         print('Deleting pub/sub subscription {}...'.format(pubsub_subscription))
-        subscription.delete()
+        subscriber.delete_subscription(subscription_path)
 
     print('Creating pub/sub subscription {}...'.format(pubsub_subscription))
-    subscription.create()
+    subscriber.create_subscription(subscription_path, topic_path)
     print('Pub/sub topic {} is up and running'.format(pubsub_subscription))
 
     print("")
