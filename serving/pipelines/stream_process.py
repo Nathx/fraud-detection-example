@@ -57,15 +57,20 @@ def prepare_steaming_sink(project_id, bq_dataset, bq_table):
               for field_name, data_type in BQ_SCHEMA_DEF.items()]
 
     bq_client = bigquery.Client(project=project_id)
-    dataset = bigquery.Dataset(bq_dataset, bq_client)
-    table = bigquery.Table(bq_table, dataset, schema=schema)
+    dataset = bq_client.Dataset(bq_dataset)
+    if not dataset.exists():
+        print('Creating BQ Dataset {}...'.format(bq_dataset))
+        dataset = client.create_dataset(dataset)
+    
+    table_ref = dataset.table(bq_table)
+    table = bigquery.Table(table_ref, schema=schema)
 
     if table.exists():
         print('Deleting BQ Table {}...'.format(bq_table))
         table.delete()
 
     print('Creating BQ Table {}...'.format(bq_table))
-    table.create()
+    bq_client.create_table(table)
 
     print('BQ Table {} is up and running'.format(bq_table))
     print("")
