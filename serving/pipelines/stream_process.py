@@ -27,7 +27,7 @@ def prepare_steaming_source(project_id, pubsub_topic, pubsub_subscription):
     project_path = publisher.project_path(project_id)
     topic_path = publisher.topic_path(project_id, pubsub_topic)
 
-    if topic_path in publisher.list_topics(project_path):
+    if topic_path in [topic.name for topic in publisher.list_topics(project_path)]:
         print('Deleting pub/sub topic {}...'.format(pubsub_topic))
         publisher.delete_topic(topic_path)
 
@@ -39,7 +39,7 @@ def prepare_steaming_source(project_id, pubsub_topic, pubsub_subscription):
     project_path = subscriber.project_path(project_id)
     subscription_path = subscriber.subscription_path(
         project_id, pubsub_subscription)
-    if subscription_path in subscriber.list_subscriptions(project_path):
+    if subscription_path in [sub.name for sub in subscriber.list_subscriptions(project_path)]:
         print('Deleting pub/sub subscription {}...'.format(pubsub_subscription))
         subscriber.delete_subscription(subscription_path)
 
