@@ -1,6 +1,7 @@
 import apache_beam as beam
 import logging
 from apache_beam.transforms.window import FixedWindows
+import argparse
 
 from model import inference
 from datetime import datetime
@@ -23,9 +24,10 @@ def prepare_steaming_source(project_id, pubsub_topic, pubsub_subscription):
     # create pubsub topic
 
     publisher = pubsub.PublisherClient()
+    project_path = publisher.project_path(project_id)
     topic_path = publisher.topic_path(project_id, pubsub_topic)
 
-    if topic.exists():
+    if topic_path in publisher.list_topics(project_path):
         print('Deleting pub/sub topic {}...'.format(pubsub_topic))
         publisher.delete_topic(topic_path)
 
@@ -34,9 +36,10 @@ def prepare_steaming_source(project_id, pubsub_topic, pubsub_subscription):
     print('Pub/sub topic {} is up and running'.format(pubsub_topic))
 
     subscriber = pubsub.SubscriberClient()
+    project_path = subscriber.project_path(project_id)
     subscription_path = subscriber.subscription_path(
         project_id, pubsub_subscription)
-    if subscription.exists():
+    if subscription_path in subscriber.list_subscriptions(project_path):
         print('Deleting pub/sub subscription {}...'.format(pubsub_subscription))
         subscriber.delete_subscription(subscription_path)
 
@@ -158,4 +161,35 @@ def run_pipeline_with_micro_batches(inference_type, project,
 
     pipeline.run()
 #[END micro-batching]
+
+if __name__ == '__main__':
+    args_parser = argparse.ArgumentParser()
+
+    args_parser.add_argument(
+        '--project_id',
+        help="""
+        Google Cloud project id\
+        """,
+        default='ksalama-gcp-playground',
+    )
+
+    args_parser.add_argument(
+        '--pubsub-topic',
+        help="""
+        Cloud Pub/Sub topic to send the messages to\
+        """,
+        default='babyweights',
+    )
+
+    args_parser.add_argument(
+        '--pubsub-subscription',
+        help="""
+        Cloud Pub/Sub subscription to receive the messages to\
+        """,
+        default='',
+        type=int
+    )
+    PARAMS = args_parser.parse_args()
+
+    prepare_steaming_source(PARAMS.project_id, PARAMS.pubsub_topic, PARAMS.pubsub_subscription)
 
