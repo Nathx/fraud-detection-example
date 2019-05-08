@@ -65,15 +65,15 @@ def prepare_steaming_sink(project_id, bq_dataset, bq_table):
         dataset = bigquery.Dataset(bq_dataset)
         dataset = bq_client.create_dataset(dataset)
     
-    table_id  = '{}.{}.{}'.format(project_id, bq_dataset, bq_table)
+    table_ref = dataset.table(bq_table)
     try: 
-        table = bq_client.get_table(table_id)
+        table = bq_client.get_table(table_ref)
     except:
-        print('Creating BQ Table {}...'.format(table_id))
-        table = bigquery.Table(table_id, schema=schema)
+        print('Creating BQ Table {}...'.format(bq_table))
+        table = bigquery.Table(table_ref, schema=schema)
         table = bq_client.create_table(table)
 
-    print('BQ Table {} is up and running'.format(table_id))
+    print('BQ Table {} is up and running'.format(bq_table))
     print("")
 
 
