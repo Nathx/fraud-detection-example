@@ -92,6 +92,6 @@ def estimate_cmle(instances):
 
     model_url = 'projects/{}/models/{}/versions/{}'.format(PROJECT, CMLE_MODEL_NAME, CMLE_MODEL_VERSION)
     response = cmle_api.projects().predict(body=request_data, name=model_url).execute()
-    values = [item["predictions"][0] for item in response['predictions']]
+    values = [item["probabilities"][0] for item in response['predictions']]
     return values
 #[END inference_cmle]
